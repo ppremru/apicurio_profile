@@ -15,7 +15,7 @@ info:
 paths:
   /profile/{kerberos_id}:
     summary: Get Profile by KerberosId.
-    description: 'Q:  The DB does not have kerberosId as a key - is it unique?'
+    description: The kerberos_id is unique across the profiles.
     get:
       responses:
         default:
@@ -29,6 +29,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Profile'
+              examples:
+                jdoe:
+                  value:
+                    id: d7e1bc6b-b659-432d-b346-29f3a530bfa9
+                    kerberos_id: jdoe
+                    last_logged_in: 2020-04-23T18:25:43.511Z
+                    profile_attributes:
+                    - key: email
+                      value: jdoe@abc.com
+                    - key: name
+                      value: jane doe
           description: profile response
       operationId: findProfileByKerberosId
       summary: Retrieve profile attributes
@@ -44,56 +55,65 @@ paths:
         type: string
       in: path
       required: true
-  /profile/attribute/{kerberos_id}:
+  /profile/attribute/{kerberos_id}/{attribute}:
     post:
       requestBody:
-        description: Use the basic json to push a new attribute to the profile.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Profile_attribute_add'
             examples:
-              jdoe:
+              Add email for Jane Doe:
                 value:
                   kerberos_id: jdoe
                   profile_attribute:
                     key: email
                     value: jdoe@abc.com
         required: true
-      responses:
-        "200":
-          description: "Assumption is that it was added.  \nQ:  I would like to return\
-            \ the updated list to make it easier for the UI.  Thoughts?"
-      summary: Add ONE attribute for a specified kerberos id
-    delete:
-      responses:
-        "200":
-          description: Assume all went well - OR return new list - OR return errors?
-    parameters:
-    - name: kerberos_id
-      in: path
-      required: true
-  /profile/attribute/{kerberos_id}/{attribute}:
-    delete:
       parameters:
       - name: kerberos_id
-        description: kerberos Id for the profile
+        description: Kerberos Id
         schema:
           type: string
         in: path
         required: true
       - examples:
-          Key:
-            value: email
+          JaneDoe:
+            value: jdoe
         name: attribute
-        description: Specify the name of the key value pair to delete.
+        description: Key to be updated
         schema:
           type: string
         in: path
         required: true
       responses:
         "200":
-          description: Assume all went well - OR return the updated list?
+          description: ok
+      summary: Add ONE attribute key-value
+    delete:
+      parameters:
+      - examples:
+          Jane Doe's Email Id:
+            value: jdoe
+        name: kerberos_id
+        description: Kerberos Id
+        schema:
+          type: string
+        in: path
+        required: true
+      - examples:
+          Email attribute (key):
+            value: email
+        name: attribute
+        description: Name of the attribute to update
+        schema:
+          type: string
+        in: path
+        required: true
+      responses:
+        "200":
+          description: assume deleted
+      summary: Delete ONE named attribute
 components:
   schemas:
     Error:
